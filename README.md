@@ -34,5 +34,7 @@ Usage: `steam-ws-download [Options]`
 * `-f|--file` Path to a file containing a list of Workshop IDs
 * `-v|--debug` Print debug output
 * `--clear-cache` Clear SWDS cache, if any
+* `-n|--no-extensions` Prevents extensions from running
+* `-o|--no-updates` Prevents extensions from being downloaded or updated
 
 
