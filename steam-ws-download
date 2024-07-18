@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-VERSION=2.2
+VERSION=2.3
 function debug() {
     if [[ $DEBUG == "1" ]]; then
         echo >&2 "DEBUG: $*"
@@ -228,6 +228,11 @@ if [[ $C_NOEX == "true" ]]; then
 else
     if [[ -e "$SWDS_CONFDIR/extensions/game-$GAME.sh" ]]; then
         source "$SWDS_CONFDIR/extensions/game-$GAME.sh"
+        EC=$?
+        if [[ $EC -gt 0 ]]; then
+            echo >&2 "Failed to source extension!! Entering fallback mode!"
+            C_NOEX=true
+        fi
     else
         debug "No extension for $GAME was found in $SWDW_CONFDIR/extensions"
     fi
