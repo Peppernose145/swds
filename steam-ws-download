@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-VERSION=2.5.2
+VERSION=2.5.3
 function debug() {
     if [[ $DEBUG == "1" ]]; then
         echo >&2 "DEBUG: $*"
@@ -80,7 +80,7 @@ function getworkshopname() {
 #     C_GAME - true|false - Whether to use command-line arg for AppID instead of prompting
 #     C_WSITEMS - true|false - Whether to use command-line arg for Workshop items instead of prompting
 #     C_UCMD - true|false - Whether there are command-line args being used for the login
-echo >&2 "Command-line: $@"
+#echo >&2 "Command-line: $@"
 function prthelp() {
     cat <<EOF
 Steam Workshop Downloader Script v$VERSION
