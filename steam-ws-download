@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-VERSION=2.4
+VERSION=2.5
 function debug() {
     if [[ $DEBUG == "1" ]]; then
         echo >&2 "DEBUG: $*"
@@ -96,6 +96,7 @@ Usage: steam-ws-download [Options]
     --clear-cache                                         Clear SWDS cache, if any
     -n|--no-extensions                                    Prevents extensions from running
     -o|--no-updates                                       Prevents extensions from being downloaded or updated
+    -d|--dry-run                                          Shows you what will be done, but doesn't actually do it.
 EOF
 }
 args_count=0
@@ -103,6 +104,7 @@ for a in $@; do
     args_count=$((args_count+1))
     echo >&2 "Processing arg: $1"
     case $1 in
+        -d|--dry-run) DRY=true; debug "Dry run enabled";;
         -n|--no-extensions) C_NOEX=true; debug "Extensions disabled" ;;
         -o|--no-updates) C_NOUP=true; debug "Extension updates disabled" ;;
         -v|--debug) DEBUG=1; debug "Debug output enabled" ;;
@@ -217,32 +219,35 @@ GAME=$GIDENTRY
 
 # Scan for any extentions for this AppID
 debug "C_NOUP = $C_NOUP"
-if [[ $C_NOUP == "true" ]]; then
-    debug "Skipped updating extension"
+if [[ $DRY == "true" ]]; then
+    debug "Skipped extension things due to dry run"
 else
-    curl 2>/dev/null -fo "$SWDS_CONFDIR/extensions/game-$GAME.sh" "https://raw.githubusercontent.com/Peppernose145/swds-extensions/main/extensions/game-$GAME.sh"
-    EC=$?
-    if [[ $EC -gt 0 ]]; then
-        debug "Could not download extension for $GAME from GitHub"
+    if [[ $C_NOUP == "true" ]]; then
+        debug "Skipped updating extension"
     else
-        echo "Downloaded extension for $(getgamename $GAME) ($GAME)"
-    fi
-fi
-if [[ $C_NOEX == "true" ]]; then
-    debug "Skipped sourcing extension"
-else
-    if [[ -e "$SWDS_CONFDIR/extensions/game-$GAME.sh" ]]; then
-        source "$SWDS_CONFDIR/extensions/game-$GAME.sh"
+        curl 2>/dev/null -fo "$SWDS_CONFDIR/extensions/game-$GAME.sh" "https://raw.githubusercontent.com/Peppernose145/swds-extensions/main/extensions/game-$GAME.sh"
         EC=$?
         if [[ $EC -gt 0 ]]; then
-            echo >&2 "Failed to source extension!! Entering fallback mode!"
-            C_NOEX=true
+            debug "Could not download extension for $GAME from GitHub"
+        else
+            echo "Downloaded extension for $(getgamename $GAME) ($GAME)"
         fi
+    fi
+    if [[ $C_NOEX == "true" ]]; then
+        debug "Skipped sourcing extension"
     else
-        debug "No extension for $GAME was found in $SWDW_CONFDIR/extensions"
+        if [[ -e "$SWDS_CONFDIR/extensions/game-$GAME.sh" ]]; then
+            source "$SWDS_CONFDIR/extensions/game-$GAME.sh"
+            EC=$?
+            if [[ $EC -gt 0 ]]; then
+                echo >&2 "Failed to source extension!! Entering fallback mode!"
+                C_NOEX=true
+            fi
+        else
+            debug "No extension for $GAME was found in $SWDW_CONFDIR/extensions"
+        fi
     fi
 fi
-
 
 echo -n "$GAME" > "$SWDS_CONFDIR/last_appid"
 # Workshop IDs
@@ -285,11 +290,7 @@ EOF
         fi
     fi
 done
-if [[ $C_NOEX == "true" ]]; then
-    debug "Skipped running extension 'before' callback" 
-else
-    EXTENSION_BEFORE "$DEBUG" "$SUSER" "$WSENTRY"
-fi
+
 rm "$SWDS_CONFDIR/last_wsitems"
 if [[ $PASS != "" ]]; then
     if [[ $C_UCMD == "true" ]]; then
@@ -305,18 +306,40 @@ for w in ${WSENTRY[@]}; do
     echo "$w" >> "$SWDS_CONFDIR/last_wsitems"
     echo "$(getworkshopname $w) ($w)"
     echo "$cmd" >> /tmp/steam-ws-download.scmd
-    EXTENSION_WSITEM_LOOP $DEBUG $w "$SUSER" "$WSENTRY"
+    if [[ $DRY == "true" ]]; then
+        :
+    else
+        EXTENSION_WSITEM_LOOP $DEBUG $w "$SUSER" "$WSENTRY"
+    fi
 done
 echo "quit" >> /tmp/steam-ws-download.scmd
 debug "login $SUSER [redacted]"
 #echo ${SC_DL_CMDS[@]}
 #cat /tmp/steam-ws-download.scmd
-EXTENSION_BEFORE $DEBUG "$SUSER" "$WSENTRY"
-if [[ $ANON -eq 0 ]]; then
-    steamcmd +login $SUSER $PASS $GCODE +runscript /tmp/steam-ws-download.scmd
+if [[ $DRY == "true" ]]; then
+    cat <<EOF
+==== Dry Run ====
+SWDS will perform the following actions:
+Download updated extension for $GAME if allowed
+Source the extension for $GAME and run it if allowed
+Run the EXTENSION_WSITEMS_LOOP callback when creating commands
+Run the EXTENTION_BEFORE callback
+Run SteamCMD as user $SUSER with the following script:
+======================================
+$(cat /tmp/steam-ws-download.scmd)
+======================================
+Run the EXTENSION_AFTER callback
+EOF
 else
-    debug "Running SteamCMD as $SUSER"
-    steamcmd +login anonymous +runscript /tmp/steam-ws-download.scmd
+    EXTENSION_BEFORE $DEBUG "$SUSER" "$WSENTRY"
+    if [[ $ANON -eq 0 ]]; then
+        steamcmd +login $SUSER $PASS $GCODE +runscript /tmp/steam-ws-download.scmd
+        SEC=$?
+    else
+        debug "Running SteamCMD as $SUSER"
+        steamcmd +login anonymous +runscript /tmp/steam-ws-download.scmd
+        SEC=$?
+    fi
+    EXTENSION_AFTER $DEBUG "$USER" "$WSENTRY"
+    debug "SteamCMD status: $SEC"
 fi
-EXTENSION_AFTER $DEBUG "$USER" "$WSENTRY"
-#debug "SteamCMD status: $?"
