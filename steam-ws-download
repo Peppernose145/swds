@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-VERSION=2.5.3
+VERSION=2.5.4
 function debug() {
     if [[ $DEBUG == "1" ]]; then
         echo >&2 "DEBUG: $*"
@@ -225,6 +225,10 @@ else
     if [[ $C_NOUP == "true" ]]; then
         debug "Skipped updating extension"
     else
+        if ! [[ -d "$SWDS_CONFDIR/extensions" ]]; then
+            mkdir "$SWDS_CONFDIR/extensions"
+            debug "Created extensions directory"
+        fi
         curl 2>/dev/null -fo "$SWDS_CONFDIR/extensions/game-$GAME.sh" "https://raw.githubusercontent.com/Peppernose145/swds-extensions/main/extensions/game-$GAME.sh"
         EC=$?
         if [[ $EC -gt 0 ]]; then
