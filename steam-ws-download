@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-VERSION=2.1.3
+VERSION=2.1.4
 function debug() {
     if [[ $DEBUG == "1" ]]; then
         echo >&2 "DEBUG: $*"
@@ -35,10 +35,12 @@ fi
 function getgamename() {
     if [[ -e $SWDS_CACHEDIR/gamename/$1 ]]; then
         echo -n "$(< $SWDS_CACHEDIR/gamename/$1)"
+        debug "Found cache file: $SWDS_CACHEDIR/gamename/$1"
     else
+        debug "Fetching store page"
         local appid=$1
         local pattern='(?<=data-appname="&quot;).*(?=&quot;")'
-        local html=$(curl 2>/dev/null "https://store.steampowered.com/app/$appid" | grep -oP "$pattern")
+        local html=$(curl 2>/dev/null -f "https://store.steampowered.com/app/$appid" | grep -oP "$pattern")
         local EC=$?
         if [[ $EC -gt 0 ]]; then
             debug "getgamename: AppID input was $appid, and grep exited with code $EC"
@@ -58,7 +60,7 @@ function getworkshopname() {
     else
         local wsid=$1
         local pattern='(?<=\<div class="workshopItemTitle"\>).*(?=\<\/div\>)'
-        local html=$(curl 2>/dev/null "https://steamcommunity.com/sharedfiles/filedetails/?id=$wsid" | grep -oP "$pattern")
+        local html=$(curl 2>/dev/null -f "https://steamcommunity.com/sharedfiles/filedetails/?id=$wsid" | grep -oP "$pattern")
         local EC=$?
         if [[ $EC -gt 0 ]]; then
             debug "getworkshopname: Workshop ID input was $wsid, and grep exited with code $EC"
@@ -206,7 +208,7 @@ done
 GAME=$GIDENTRY
 
 # Scan for any extentions for this AppID
-curl -fo "$SWDS_CONFDIR/extensions/game-$GAME.sh" "https://raw.githubusercontent.com/Peppernose145/swds-extensions/main/extensions/game-$GAME.sh"
+curl 2>/dev/null -fo "$SWDS_CONFDIR/extensions/game-$GAME.sh" "https://raw.githubusercontent.com/Peppernose145/swds-extensions/main/extensions/game-$GAME.sh"
 EC=$?
 if [[ $EC -gt 0 ]]; then
     debug "Could not download extension for $GAME from GitHub"
