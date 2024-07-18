@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-VERSION=2.0
+VERSION=2.1
 function debug() {
     if [[ $DEBUG == "1" ]]; then
         echo >&2 "DEBUG: $*"
@@ -206,11 +206,19 @@ done
 GAME=$GIDENTRY
 
 # Scan for any extentions for this AppID
-if [[ -e "$SWDS_CONFDIR/extentions/game-$GAME.sh" ]]; then
-    source "$SWDS_CONFDIR/extentions/game-$GAME.sh"
+curl -o "$SWDS_CONFDIR/extensions/game-$GAME.sh" "https://raw.githubusercontent.com/Peppernose145/swds-extensions/main/extensions/game-$GAME.sh"
+EC=$?
+if [[ $EC -gt 0 ]]; then
+    debug "Could not download extension for $GAME from GitHub"
 else
-    debug "No extensions found for this game..."
+    echo "Downloaded extension for $(getgamename $GAME) ($GAME)"
 fi
+if [[ -e "$SWDS_CONFDIR/extensions/game-$GAME.sh" ]]; then
+    source "$SWDS_CONFDIR/extensions/game-$GAME.sh"
+else
+    debug "No extension for $GAME was found in $SWDW_CONFDIR/extensions"
+fi
+
 
 
 echo -n "$GAME" > "$SWDS_CONFDIR/last_appid"
