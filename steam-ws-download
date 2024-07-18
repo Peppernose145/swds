@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-VERSION=2.1
+VERSION=2.1.2
 function debug() {
     if [[ $DEBUG == "1" ]]; then
         echo >&2 "DEBUG: $*"
@@ -54,7 +54,7 @@ function getgamename() {
 # getworkshopname - Function that extracts the name of a Workshop item from the Steam Workshop page or from cache given a Workshop ID
 function getworkshopname() {
     if [[ -e $SWDS_CACHEDIR/wsitemname/$1 ]]; then
-        echo -n $(< $SWDS_CACHEDIR/wsitemname/$1
+        echo -n $(< $SWDS_CACHEDIR/wsitemname/$1)
     else
         local wsid=$1
         local pattern='(?<=\<div class="workshopItemTitle"\>).*(?=\<\/div\>)'
@@ -206,7 +206,7 @@ done
 GAME=$GIDENTRY
 
 # Scan for any extentions for this AppID
-curl -o "$SWDS_CONFDIR/extensions/game-$GAME.sh" "https://raw.githubusercontent.com/Peppernose145/swds-extensions/main/extensions/game-$GAME.sh"
+curl -fo "$SWDS_CONFDIR/extensions/game-$GAME.sh" "https://raw.githubusercontent.com/Peppernose145/swds-extensions/main/extensions/game-$GAME.sh"
 EC=$?
 if [[ $EC -gt 0 ]]; then
     debug "Could not download extension for $GAME from GitHub"
