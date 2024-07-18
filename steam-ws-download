@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-VERSION=2.3
+VERSION=2.4
 function debug() {
     if [[ $DEBUG == "1" ]]; then
         echo >&2 "DEBUG: $*"
@@ -80,7 +80,7 @@ function getworkshopname() {
 #     C_GAME - true|false - Whether to use command-line arg for AppID instead of prompting
 #     C_WSITEMS - true|false - Whether to use command-line arg for Workshop items instead of prompting
 #     C_UCMD - true|false - Whether there are command-line args being used for the login
-debug "Command-line: $@"
+echo >&2 "Command-line: $@"
 function prthelp() {
     cat <<EOF
 Steam Workshop Downloader Script v$VERSION
@@ -98,7 +98,10 @@ Usage: steam-ws-download [Options]
     -o|--no-updates                                       Prevents extensions from being downloaded or updated
 EOF
 }
+args_count=0
 for a in $@; do
+    args_count=$((args_count+1))
+    echo >&2 "Processing arg: $1"
     case $1 in
         -n|--no-extensions) C_NOEX=true; debug "Extensions disabled" ;;
         -o|--no-updates) C_NOUP=true; debug "Extension updates disabled" ;;
@@ -126,7 +129,7 @@ for a in $@; do
                 exit 2
             fi
         ;;
-        -g|--game) C_GAME=true; GIDENTRYRAW="$2"; shift; debug "AppID entered: $GIDENTRY" ;;
+        -g|--game) C_GAME=true; GIDENTRYRAW="$2"; shift; debug "AppID entered: $GIDENTRYRAW" ;;
         -w|--workshop-items|--wsitems) C_WSITEMS=true; WSENTRYRAW="$2"; shift; debug "Workshop items entered: $WSENTRYRAW" ;;
         -f|--file) 
             C_WSITEMS=true; 
@@ -137,9 +140,10 @@ for a in $@; do
             fi
         ;;
         -*) echo >&2 "Unknown option: $1"; prthelp; exit 2 ;;
-        *) debug "Discarded non-option arg $1"; shift ;;
+        *) debug "Discarded non-option arg '$1'";;
     esac
     shift
+    echo >&2 "Current option is now $1"
 done
 
 echo "Steam Workshop Downloader Script v$VERSION"
@@ -212,6 +216,7 @@ done
 GAME=$GIDENTRY
 
 # Scan for any extentions for this AppID
+debug "C_NOUP = $C_NOUP"
 if [[ $C_NOUP == "true" ]]; then
     debug "Skipped updating extension"
 else
