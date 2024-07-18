@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-VERSION=2.5.1
+VERSION=2.5.2
 function debug() {
     if [[ $DEBUG == "1" ]]; then
         echo >&2 "DEBUG: $*"
@@ -217,7 +217,7 @@ while true; do
 done
 GAME=$GIDENTRY
 
-# Scan for any extentions for this AppID
+# Scan for any extensions for this AppID
 debug "C_NOUP = $C_NOUP"
 if [[ $DRY == "true" ]]; then
     debug "Skipped extension things due to dry run"
@@ -323,7 +323,7 @@ SWDS will perform the following actions:
 Download updated extension for $GAME if allowed
 Source the extension for $GAME and run it if allowed
 Run the EXTENSION_WSITEMS_LOOP callback when creating commands
-Run the EXTENTION_BEFORE callback
+Run the EXTENSION_BEFORE callback
 Run SteamCMD as user $SUSER with the following script:
 ======================================
 $(cat /tmp/steam-ws-download.scmd)
