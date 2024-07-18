@@ -36,5 +36,6 @@ Usage: `steam-ws-download [Options]`
 * `--clear-cache` Clear SWDS cache, if any
 * `-n|--no-extensions` Prevents extensions from running
 * `-o|--no-updates` Prevents extensions from being downloaded or updated
+* `-d|--dry-run` Shows you what will be done, but doesn't actually do it
 
 
