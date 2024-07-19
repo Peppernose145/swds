@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-VERSION=2.5.4
+VERSION=2.5.5
 function debug() {
     if [[ $DEBUG == "1" ]]; then
         echo >&2 "DEBUG: $*"
@@ -344,6 +344,6 @@ else
         steamcmd +login anonymous +runscript /tmp/steam-ws-download.scmd
         SEC=$?
     fi
-    EXTENSION_AFTER $DEBUG "$USER" "$WSENTRY"
+    EXTENSION_AFTER $DEBUG "$SUSER" "$WSENTRY"
     debug "SteamCMD status: $SEC"
 fi
