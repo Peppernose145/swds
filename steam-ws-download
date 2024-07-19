@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-VERSION=2.5.5
+VERSION=2.5.6
 function debug() {
     if [[ $DEBUG == "1" ]]; then
         echo >&2 "DEBUG: $*"
@@ -85,7 +85,7 @@ function prthelp() {
     cat <<EOF
 Steam Workshop Downloader Script v$VERSION
 Usage: steam-ws-download [Options]
-    -h|-?|--help                                          Show this help message and exit.
+    -h|--help                                          Show this help message and exit.
     -a|--anon|--anonymous                                 Login anonymously, equivalent to '--user anon'
     -u|--user <name>                                      Login with this username
     -p|--password <password>                              Use this password when logging in. You must use --user BEFORE --password. Does not work with anonymous user.
@@ -102,7 +102,7 @@ EOF
 args_count=0
 for a in $@; do
     args_count=$((args_count+1))
-    #echo >&2 "Processing arg: $1"
+    echo >&2 "Processing arg: $1"
     case $1 in
         -d|--dry-run) DRY=true; debug "Dry run enabled";;
         -n|--no-extensions) C_NOEX=true; debug "Extensions disabled" ;;
@@ -112,7 +112,7 @@ for a in $@; do
             rm -rf $SWDS_CACHEDIR && echo "Cleared cache"
             exit
         ;;
-        -h|-?|--help) prthelp; exit ;;
+        -h|--help) prthelp; exit ;;
         -a|--anon|--anonymous) C_USER=true; LOGINENTRY="anonymous"; debug "Anonymous user selected" ;;
         -u|--user) C_UCMD=true; C_USER=true; LOGINUENTRY="$2"; LOGINENTRY="$LOGINUENTRY"; shift; debug "User selected: $LOGINENTRY" ;;
         -p|--password)
@@ -145,7 +145,7 @@ for a in $@; do
         *) debug "Discarded non-option arg '$1'";;
     esac
     shift
-    #echo >&2 "Current option is now $1"
+    echo >&2 "Current option is now $1"
 done
 
 echo "Steam Workshop Downloader Script v$VERSION"
