@@ -1,5 +1,5 @@
-#!/usr/bin/bash
-VERSION=2.5.6
+ #!/usr/bin/bash
+VERSION=2.5.7
 function debug() {
     if [[ $DEBUG == "1" ]]; then
         echo >&2 "DEBUG: $*"
@@ -80,7 +80,7 @@ function getworkshopname() {
 #     C_GAME - true|false - Whether to use command-line arg for AppID instead of prompting
 #     C_WSITEMS - true|false - Whether to use command-line arg for Workshop items instead of prompting
 #     C_UCMD - true|false - Whether there are command-line args being used for the login
-#echo >&2 "Command-line: $@"
+# "Command-line: $@"
 function prthelp() {
     cat <<EOF
 Steam Workshop Downloader Script v$VERSION
@@ -102,7 +102,7 @@ EOF
 args_count=0
 for a in $@; do
     args_count=$((args_count+1))
-    echo >&2 "Processing arg: $1"
+    #echo >&2 "Processing arg: $1"
     case $1 in
         -d|--dry-run) DRY=true; debug "Dry run enabled";;
         -n|--no-extensions) C_NOEX=true; debug "Extensions disabled" ;;
@@ -145,7 +145,7 @@ for a in $@; do
         *) debug "Discarded non-option arg '$1'";;
     esac
     shift
-    echo >&2 "Current option is now $1"
+    #echo >&2 "Current option is now $1"
 done
 
 echo "Steam Workshop Downloader Script v$VERSION"
