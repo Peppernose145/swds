@@ -1,5 +1,5 @@
  #!/usr/bin/bash
-VERSION=2.5.7
+VERSION=2.5.8
 function debug() {
     if [[ $DEBUG == "1" ]]; then
         echo >&2 "DEBUG: $*"
@@ -100,6 +100,7 @@ Usage: steam-ws-download [Options]
 EOF
 }
 args_count=0
+#echo >&2 "$# Args"
 for a in $@; do
     args_count=$((args_count+1))
     #echo >&2 "Processing arg: $1"
@@ -114,7 +115,14 @@ for a in $@; do
         ;;
         -h|--help) prthelp; exit ;;
         -a|--anon|--anonymous) C_USER=true; LOGINENTRY="anonymous"; debug "Anonymous user selected" ;;
-        -u|--user) C_UCMD=true; C_USER=true; LOGINUENTRY="$2"; LOGINENTRY="$LOGINUENTRY"; shift; debug "User selected: $LOGINENTRY" ;;
+        -u|--user)
+            C_UCMD=true
+            C_USER=true
+            LOGINUENTRY="$2"
+            LOGINENTRY="$LOGINUENTRY"
+            [[ $# -gt 0 ]] && shift
+            debug "User selected: $LOGINENTRY"
+        ;;
         -p|--password)
             C_UCMD=true
             if [[ C_USER == "true" ]]; then
@@ -124,15 +132,25 @@ for a in $@; do
                 else
                     C_PASS=true
                     LOGINENTRY="$LOGINUENTRY|$2"
-                    shift
+                    [[ $# -gt 0 ]] && shift
                 fi
             else
                 echo >&2 "Please enter --user <name> BEFORE --password"
                 exit 2
             fi
         ;;
-        -g|--game) C_GAME=true; GIDENTRYRAW="$2"; shift; debug "AppID entered: $GIDENTRYRAW" ;;
-        -w|--workshop-items|--wsitems) C_WSITEMS=true; WSENTRYRAW="$2"; shift; debug "Workshop items entered: $WSENTRYRAW" ;;
+        -g|--game)
+            C_GAME=true
+            GIDENTRYRAW="$2"
+            [[ $# -gt 0 ]] && shift
+            debug "AppID entered: $GIDENTRYRAW" 
+        ;;
+        -w|--workshop-items|--wsitems)
+            C_WSITEMS=true
+            WSENTRYRAW="$2"
+            [[ $# -gt 0 ]] && shift
+            debug "Workshop items entered: $WSENTRYRAW"
+        ;;
         -f|--file) 
             C_WSITEMS=true; 
             if [[ -e "$2" ]]; then 
@@ -144,7 +162,8 @@ for a in $@; do
         -*) echo >&2 "Unknown option: $1"; prthelp; exit 2 ;;
         *) debug "Discarded non-option arg '$1'";;
     esac
-    shift
+    [[ $# -gt 0 ]] && shift || debug >&2 "No more arguments to shift"
+    [[ $# -eq 0 ]] && break
     #echo >&2 "Current option is now $1"
 done
 
