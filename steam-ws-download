@@ -1,5 +1,6 @@
  #!/usr/bin/bash
-VERSION=2.5.8
+VERSION=2.5.9
+DEBUG=0
 function debug() {
     if [[ $DEBUG == "1" ]]; then
         echo >&2 "DEBUG: $*"
