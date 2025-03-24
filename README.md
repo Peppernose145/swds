@@ -5,7 +5,7 @@ SWDS is a Bash script that uses SteamCMD to download Workshop items from a list 
 * Zenity
 * Bash
 * SteamCMD
-* A writeable home directory with .local/share and .cache folders
+* A writeable home directory with .local/share and .cache directories
 
 # Installation
 * Download `steam-ws-download`
